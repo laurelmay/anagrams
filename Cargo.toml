@@ -1,0 +1,7 @@
+[package]
+name = "anagrams"
+version = "0.1.0"
+authors = ["Kyle Laker <kyle@laker.email>"]
+edition = "2018"
+
+[dependencies]
