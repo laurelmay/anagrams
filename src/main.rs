@@ -6,9 +6,11 @@ use std::io::{BufRead, BufReader, Write};
 use std::iter::FromIterator;
 
 /// Common way to get the signature of a particular word.
-fn word_signature(word: String) -> String {
+fn word_signature(word: &str) -> String {
     let lowercase = word.to_lowercase();
     let mut chars: Vec<char> = lowercase.chars().collect();
+    // sort the letters within the word, allowing all words containing the
+    // same letters to have the same signature
     chars.sort_by(|a, b| b.cmp(a));
     String::from_iter(chars)
 }
@@ -17,11 +19,11 @@ fn word_signature(word: String) -> String {
 /// signatures to lists of words.
 fn process_dictionary(dict: &mut HashMap<String, Vec<String>>, file: &mut File) {
     for line in BufReader::new(file).lines() {
-        let l = line.unwrap();
-        // I don't like this, but the borrow checker complains otherwise
-        let key = l.clone();
-        let entry = dict.entry(word_signature(l)).or_insert(Vec::new());
-        entry.push(key);
+        if let Ok(word) = line {
+            dict.entry(word_signature(&word)).or_insert(Vec::new()).push(word);
+        } else {
+            eprintln!("Unable to process {:?}", line);
+        }
     }
 }
 
@@ -55,10 +57,18 @@ fn main() {
     let stdin = io::stdin();
     loop {
         print!("    Word: ");
-        match io::stdout().flush().unwrap();
+        io::stdout().flush().unwrap();
 
         let mut word = String::new();
         match stdin.read_line(&mut word) {
+            // Handle when EOF is given
+            Ok(len) if len == 0 => {
+                // Finish the line the prompt was given on. Together, these
+                // should result in similar behavior between ^C and ^D being
+                // entered.
+                println!("");
+                break;
+            },
             Ok(_) => { },
             Err(_) => {
                 eprintln!("Unable to read given input.");
@@ -73,16 +83,12 @@ fn main() {
         }
 
         // Get around a borrow checker complaint
-        let w = word.clone();
-        let sig = word_signature(word);
+        let sig = word_signature(&word);
 
-        match dict.get(&sig) {
-            None => {
-                println!("   Error: '{}' not in dictionary.", w);
-            }
-            Some(list) => {
-                println!("Anagrams: {}", list.join(", "));
-            }
+        if let Some(list) = dict.get(&sig) {
+            println!("Anagrams: {}", list.join(", "));
+        } else {
+            println!("   Error: '{}' not in dictionary.", word);
         }
 
         println!("");
