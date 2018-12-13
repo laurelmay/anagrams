@@ -43,7 +43,7 @@ fn main() {
 
     let mut file = match File::open(dictionary_file) {
         Ok(f) => f,
-        Err(_err) => {
+        Err(_) => {
             eprintln!("Unable to open dictionary file.");
             return;
         }
@@ -56,8 +56,12 @@ fn main() {
 
     let stdin = io::stdin();
     loop {
-        print!("    Word: ");
-        io::stdout().flush().unwrap();
+        print!("Word: ");
+        // Ensure the prompt gets printed
+        if let Err(_) = io::stdout().flush() {
+            // Exit if unable to flush stdout
+            return;
+        }
 
         let mut word = String::new();
         match stdin.read_line(&mut word) {
@@ -82,13 +86,10 @@ fn main() {
             continue;
         }
 
-        // Get around a borrow checker complaint
-        let sig = word_signature(&word);
-
-        if let Some(list) = dict.get(&sig) {
+        if let Some(list) = dict.get(&word_signature(&word)) {
             println!("Anagrams: {}", list.join(", "));
         } else {
-            println!("   Error: '{}' not in dictionary.", word);
+            println!("Error: '{}' not in dictionary.", word);
         }
 
         println!("");
