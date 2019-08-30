@@ -39,9 +39,9 @@ fn main() {
         return;
     }
 
-    let dictionary_file = &args[1];
+    let dictionary_file_path = &args[1];
 
-    let mut file = match File::open(dictionary_file) {
+    let mut dictionary_file = match File::open(dictionary_file_path) {
         Ok(f) => f,
         Err(_) => {
             eprintln!("Unable to open dictionary file.");
@@ -50,8 +50,8 @@ fn main() {
     };
 
     println!("Processing dictionary...");
-    let mut dict = HashMap::new();
-    process_dictionary(&mut dict, &mut file);
+    let mut dictionary = HashMap::new();
+    process_dictionary(&mut dictionary, &mut dictionary_file);
     println!("");
 
     let stdin = io::stdin();
@@ -86,7 +86,7 @@ fn main() {
             continue;
         }
 
-        if let Some(list) = dict.get(&word_signature(&word)) {
+        if let Some(list) = dictionary.get(&word_signature(&word)) {
             println!("Anagrams: {}", list.join(", "));
         } else {
             println!("Error: '{}' not in dictionary.", word);
