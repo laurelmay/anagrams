@@ -84,6 +84,9 @@ fn main() {
 
         if word.len() == 0 {
             continue;
+        } else if word == "/dump" {
+            println!("Full dictionary:");
+            println!("{:?}", dictionary);
         }
 
         if let Some(list) = dictionary.get(&word_signature(&word)) {
