@@ -11,7 +11,7 @@ fn word_signature(word: &str) -> String {
     let mut chars: Vec<char> = lowercase.chars().collect();
     // sort the letters within the word, allowing all words containing the
     // same letters to have the same signature
-    chars.sort_by(|a, b| b.cmp(a));
+    chars.sort_by(|a, b| a.cmp(b));
     String::from_iter(chars)
 }
 
