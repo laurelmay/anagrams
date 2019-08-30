@@ -92,7 +92,7 @@ fn main() {
         if let Some(list) = dictionary.get(&word_signature(&word)) {
             println!("Anagrams: {}", list.join(", "));
         } else {
-            println!("Error: '{}' not in dictionary.", word);
+            eprintln!("Error: '{}' not in dictionary.", word);
         }
 
         println!("");
