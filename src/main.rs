@@ -1,10 +1,14 @@
+extern crate dirs;
+extern crate rustyline;
+
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
-use std::io;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader};
 use std::iter::FromIterator;
+use std::path::PathBuf;
 
+use rustyline::Editor;
 
 /// Common way to get the signature of a particular word.
 fn word_signature(word: &str) -> String {
@@ -70,60 +74,51 @@ fn main() {
     process_dictionary(&mut dictionary, words);
     println!("");
 
-    let stdin = io::stdin();
-    let mut stdout = io::stdout();
+    let mut history_path_buf = PathBuf::new();
+    history_path_buf.push(dirs::data_dir().unwrap());
+    history_path_buf.push("anagrams");
+    history_path_buf.set_file_name("history.txt");
+    let history_path = history_path_buf.as_path();
+
+    let mut rl = Editor::<()>::new();
+    let _ =  rl.load_history(history_path);
+
     loop {
-        print!("Word: ");
-        // Ensure the prompt gets printed
-        if let Err(_) = stdout.flush() {
-            // Exit if unable to flush stdout
-            return;
-        }
-
-        let mut word = String::new();
-        match stdin.read_line(&mut word) {
-            // Handle when EOF is given
-            Ok(len) if len == 0 => {
-                // Finish the line the prompt was given on. Together, these
-                // should result in similar behavior between ^C and ^D being
-                // entered.
-                println!("");
-                break;
+        match rl.readline("Word: ") {
+            Ok(word) => {
+                if word.len() == 0 {
+                    continue;
+                } else if word == "/dump" {
+                    println!("Full dictionary:");
+                    println!("{:?}", dictionary);
+                } else if word == "/countsigs" {
+                    println!("Count: {}", dictionary.keys().len());
+                } else if word == "/quit" {
+                    break;
+                } else if word == "/help" {
+                    println!("Enter a word and all anagrams will be printed.");
+                    println!("Commands:");
+                    println!("  WORD        Print anagrams for WORD.");
+                    println!("  /countsigs  Dump the count of signatures");
+                    println!("  /dump       Prints the entire dictionary (signatures and words).");
+                    println!("  /help       Print this help text.");
+                    println!("  /quit       Exit the program.");
+                } else if word.starts_with("/") {
+                    eprintln!("Unsupported command: '{}'", word);
+                } else if let Some(list) = dictionary.get(&word_signature(&word)) {
+                    println!("Anagrams: {}", list.join(", "));
+                    rl.add_history_entry(word);
+                } else {
+                    eprintln!("Error: '{}' not in dictionary.", word);
+                    rl.add_history_entry(word);
+                }
             },
-            Ok(_) => { },
-            Err(_) => eprintln!("Unable to read given input.")
-        };
-        // Remove the \n from the end of the string
-        word.pop();
-
-        let word = word;
-
-        if word.len() == 0 {
-            continue;
-        } else if word == "/dump" {
-            println!("Full dictionary:");
-            println!("{:?}", dictionary);
-        } else if word == "/countsigs" {
-            println!("Count: {}", dictionary.keys().len());
-        } else if word == "/quit" {
-            break;
-        } else if word == "/help" {
-            println!("Enter a word and all anagrams will be printed.");
-            println!("Commands:");
-            println!("  WORD        Print anagrams for WORD.");
-            println!("  /countsigs  Dump the count of signatures");
-            println!("  /dump       Prints the entire dictionary (signatures and words).");
-            println!("  /help       Print this help text.");
-            println!("  /quit       Exit the program.");
-        } else if word.starts_with("/") {
-            eprintln!("Unsupported command: '{}'", word);
-        } else if let Some(list) = dictionary.get(&word_signature(&word)) {
-            println!("Anagrams: {}", list.join(", "));
-        } else {
-            eprintln!("Error: '{}' not in dictionary.", word);
+            Err(_) => {
+                break;
+            }
         }
-
         println!("");
     }
+    let _ =  rl.save_history(history_path);
 }
 
