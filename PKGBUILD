@@ -1,7 +1,7 @@
 # Maintainer: Kyle Laker <kyle@laker.email>
 
 pkgname=anagrams
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc="A program to find anagrams"
 arch=("x86_64")
