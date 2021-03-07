@@ -3,8 +3,7 @@ extern crate rustyline;
 
 use std::collections::HashMap;
 use std::env;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::fs;
 use std::iter::FromIterator;
 use std::path::PathBuf;
 
@@ -31,9 +30,28 @@ fn word_sig_test() {
     assert_eq!(word_signature("stop"), *"opst");
 }
 
+fn parse_words(dictionary_contents: &str) -> Vec<&str> {
+    dictionary_contents
+        .lines()
+        .filter(|word| !word.trim().is_empty())
+        .collect()
+}
+
+#[cfg(test)]
+#[test]
+fn test_read_words_simple() {
+    let test_input = "test\na\nstop";
+    let expected_dict = vec!["test", "a", "stop"];
+    let empty_vec: Vec<&str> = vec![];
+    assert_eq!(parse_words(test_input), expected_dict);
+    assert_eq!(parse_words(""), empty_vec);
+    assert_eq!(parse_words("a"), vec!("a"));
+    assert_eq!(parse_words("\n \n \n\n"), empty_vec)
+}
+
 /// Processes a dictionary file, converting the file to a HashMap of
 /// signatures to lists of words.
-fn process_dictionary(dict: &mut HashMap<String, Vec<String>>, words: Vec<String>) {
+fn process_dictionary(dict: &mut HashMap<String, Vec<String>>, words: Vec<&str>) {
     for word in words {
         dict.entry(word_signature(&word)).or_insert(Vec::new()).push(word.to_string());
     }
@@ -52,7 +70,7 @@ fn main() {
     }
 
     let dictionary_file_path = &args[1];
-    let dictionary_file = match File::open(dictionary_file_path) {
+    let dictionary_file = match fs::read_to_string(dictionary_file_path) {
         Ok(f) => f,
         Err(_) => {
             eprintln!("Unable to open dictionary file.");
@@ -62,15 +80,7 @@ fn main() {
 
     println!("Processing dictionary...");
     let mut dictionary = HashMap::new();
-    let dict_lines = BufReader::new(dictionary_file).lines();
-    let mut words = vec!();
-    for line in dict_lines {
-        if let Ok(word) = line {
-            words.push(word);
-        } else {
-            eprintln!("Unable to process line: {:?}", line);
-        }
-    }
+    let words = parse_words(&dictionary_file);
     process_dictionary(&mut dictionary, words);
     println!("");
 
