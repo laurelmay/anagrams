@@ -57,6 +57,14 @@ fn process_dictionary(dict: &mut HashMap<String, Vec<String>>, words: Vec<&str>)
     }
 }
 
+fn determine_history_path() -> PathBuf {
+    let mut history_path_buf = PathBuf::new();
+    history_path_buf.push(dirs::data_dir().unwrap());
+    history_path_buf.push("anagrams");
+    history_path_buf.set_file_name("history.txt");
+    history_path_buf
+}
+
 /// Prints program usage information.
 fn usage(program_name: &str) {
     println!("Usage: {} FILE", program_name);
@@ -84,14 +92,11 @@ fn main() {
     process_dictionary(&mut dictionary, words);
     println!("");
 
-    let mut history_path_buf = PathBuf::new();
-    history_path_buf.push(dirs::data_dir().unwrap());
-    history_path_buf.push("anagrams");
-    history_path_buf.set_file_name("history.txt");
-    let history_path = history_path_buf.as_path();
+    let history_path = determine_history_path();
+    let history_path = history_path.as_path();
 
     let mut rl = Editor::<()>::new();
-    let _ =  rl.load_history(history_path);
+    let _ = rl.load_history(history_path);
 
     loop {
         match rl.readline("Word: ") {
@@ -129,6 +134,6 @@ fn main() {
         }
         println!("");
     }
-    let _ =  rl.save_history(history_path);
+    let _ = rl.save_history(history_path);
 }
 
