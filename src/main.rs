@@ -57,6 +57,32 @@ fn process_dictionary(dict: &mut HashMap<String, Vec<String>>, words: Vec<&str>)
     }
 }
 
+fn process_command(cmd: &str, dictionary: &HashMap<String, Vec<String>>) -> Result<(), ()> {
+    match cmd {
+        "/help" => {
+            println!("Enter a word and all anagrams will be printed.");
+            println!("Commands:");
+            println!("  WORD        Print anagrams for WORD.");
+            println!("  /countsigs  Dump the count of signatures");
+            println!("  /dump       Prints the entire dictionary (signatures and words).");
+            println!("  /help       Print this help text.");
+            println!("  /quit       Exit the program.");
+        }
+        "/dump" => {
+            println!("Full dictionary:");
+            println!("{:?}", dictionary);
+        }
+        "/countsigs" => {
+            println!("Count: {}", dictionary.keys().len());
+        }
+        "/exit" | "/quit" => return Err(()),
+        _ => {
+            println!("Unsupported command: {}", cmd);
+        }
+    }
+    Ok(())
+}
+
 fn determine_history_path() -> PathBuf {
     let mut history_path_buf = PathBuf::new();
     history_path_buf.push(dirs::data_dir().unwrap());
@@ -100,34 +126,20 @@ fn main() {
 
     loop {
         match rl.readline("Word: ") {
-            Ok(word) => {
-                if word.len() == 0 {
-                    continue;
-                } else if word == "/dump" {
-                    println!("Full dictionary:");
-                    println!("{:?}", dictionary);
-                } else if word == "/countsigs" {
-                    println!("Count: {}", dictionary.keys().len());
-                } else if word == "/quit" {
+            Ok(word) if word.trim().len() == 0 => continue,
+            Ok(cmd) if cmd.starts_with("/") => {
+                if let Err(_) = process_command(&cmd, &dictionary) {
                     break;
-                } else if word == "/help" {
-                    println!("Enter a word and all anagrams will be printed.");
-                    println!("Commands:");
-                    println!("  WORD        Print anagrams for WORD.");
-                    println!("  /countsigs  Dump the count of signatures");
-                    println!("  /dump       Prints the entire dictionary (signatures and words).");
-                    println!("  /help       Print this help text.");
-                    println!("  /quit       Exit the program.");
-                } else if word.starts_with("/") {
-                    eprintln!("Unsupported command: '{}'", word);
-                } else if let Some(list) = dictionary.get(&word_signature(&word)) {
-                    println!("Anagrams: {}", list.join(", "));
-                    rl.add_history_entry(word);
-                } else {
-                    eprintln!("Error: '{}' not in dictionary.", word);
-                    rl.add_history_entry(word);
                 }
-            },
+            }
+            Ok(word) => {
+                if let Some(list) = dictionary.get(&word_signature(&word)) {
+                    println!("Anagrams: {}", list.join(", "));
+                } else {
+                    eprintln!("No angrams found for '{}'.", word);
+                }
+                rl.add_history_entry(word);
+            }
             Err(_) => {
                 break;
             }
