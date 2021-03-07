@@ -1,7 +1,7 @@
 # Maintainer: Kyle Laker <kyle@laker.email>
 
 pkgname=anagrams
-pkgver=0.2.0
+pkgver=0.3.0
 pkgrel=1
 pkgdesc="A program to find anagrams"
 arch=("x86_64")
@@ -14,12 +14,12 @@ sha512sums=('SKIP')
 
 build() {
   cd "$srcdir/$pkgname-${pkgver}"
-  cargo build --release --locked --all-features
+  cargo build --release --locked --all-features --target-dir=target
 }
 
 check() {
   cd "$srcdir/$pkgname-${pkgver}"
-  cargo test --release --locked
+  cargo test --release --locked --target-dir=target
 }
 
 package() {
