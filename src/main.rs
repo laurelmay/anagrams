@@ -53,8 +53,11 @@ fn test_read_words_simple() {
 /// signatures to lists of words.
 fn process_dictionary(dict: &mut HashMap<String, Vec<String>>, words: Vec<&str>) {
     for word in words {
-        dict.entry(word_signature(&word)).or_insert(Vec::new()).push(word.to_string());
+        dict.entry(word_signature(&word))
+            .or_insert(Vec::new())
+            .push(word.to_string());
     }
+    dict.retain(|_, words| words.len() > 1);
 }
 
 fn process_command(cmd: &str, dictionary: &HashMap<String, Vec<String>>) -> Result<(), ()> {
@@ -148,4 +151,3 @@ fn main() {
     }
     let _ = rl.save_history(history_path);
 }
-
