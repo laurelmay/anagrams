@@ -24,7 +24,7 @@ impl DictionaryMethods for Dictionary {
         let words_file = fs::read_to_string(path)?;
         let words = parse_words(&words_file);
         process_dictionary(self, words);
-        println!("");
+        println!();
         Ok(())
     }
 
@@ -38,7 +38,7 @@ impl DictionaryMethods for Dictionary {
 fn process_dictionary(dict: &mut Dictionary, words: Vec<&str>) {
     for word in words {
         dict.entry(word_signature(&word))
-            .or_insert(HashSet::new())
+            .or_insert_with(HashSet::new)
             .insert(word.to_string());
     }
     dict.retain(|_, words| words.len() != 1);
@@ -50,7 +50,7 @@ fn word_signature(word: &str) -> String {
     let mut chars: Vec<char> = lowercase.chars().collect();
     // sort the letters within the word, allowing all words containing the
     // same letters to have the same signature
-    chars.sort_by(|a, b| a.cmp(b));
+    chars.sort_unstable();
     let chars = chars;
     String::from_iter(chars)
 }

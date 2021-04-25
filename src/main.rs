@@ -53,8 +53,8 @@ fn usage(program_name: &str) {
 
 fn find_matches(word: &str, dict: &Dictionary) {
     if let Some(matches) = dict.lookup(word) {
-        let mut match_list = matches.into_iter().map(|s| &**s).collect::<Vec<&str>>();
-        match_list.sort();
+        let mut match_list = matches.iter().map(|s| &**s).collect::<Vec<&str>>();
+        match_list.sort_unstable();
         println!("Anagrams: {}", match_list.join(", "));
     } else {
         eprintln!("No angrams found for '{}'.", word);
@@ -79,8 +79,8 @@ fn main() {
 
     loop {
         match rl.readline("Word: ") {
-            Ok(word) if word.trim().len() == 0 => continue,
-            Ok(cmd) if cmd.starts_with("/") => match process_command(cmd.trim(), &mut dict) {
+            Ok(word) if word.trim().is_empty() => continue,
+            Ok(cmd) if cmd.starts_with('/') => match process_command(cmd.trim(), &mut dict) {
                 Err(CommandError::IoError(_)) => eprintln!("Unable to load word list"),
                 Err(CommandError::ExitCommand) => break,
                 Ok(_) => continue,
@@ -93,7 +93,7 @@ fn main() {
                 break;
             }
         }
-        println!("");
+        println!();
     }
     let _ = rl.save_history(history_path);
 }
