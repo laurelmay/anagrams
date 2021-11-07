@@ -37,7 +37,7 @@ impl DictionaryMethods for Dictionary {
 /// signatures to lists of words.
 fn process_dictionary(dict: &mut Dictionary, words: Vec<&str>) {
     for word in words {
-        dict.entry(word_signature(&word))
+        dict.entry(word_signature(word))
             .or_insert_with(HashSet::new)
             .insert(word.to_string());
     }
