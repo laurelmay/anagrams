@@ -5,5 +5,5 @@ authors = ["Kyle Laker <kyle@laker.email>"]
 edition = "2021"
 
 [dependencies]
-rustyline = "9.0"
+rustyline = "9.1"
 dirs = "4.0"
