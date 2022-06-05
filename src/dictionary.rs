@@ -23,7 +23,7 @@ impl DictionaryMethods for Dictionary {
         println!("Processing word list... [{}]", path);
         let words_file = fs::read_to_string(path)?;
         let words = parse_words(&words_file);
-        process_dictionary(self, words);
+        process_dictionary(self, &words);
         println!();
         Ok(())
     }
@@ -35,7 +35,7 @@ impl DictionaryMethods for Dictionary {
 
 /// Processes a dictionary file, converting the file to a HashMap of
 /// signatures to lists of words.
-fn process_dictionary(dict: &mut Dictionary, words: Vec<&str>) {
+fn process_dictionary(dict: &mut Dictionary, words: &[&str]) {
     for word in words {
         dict.entry(word_signature(word))
             .or_insert_with(HashSet::new)
