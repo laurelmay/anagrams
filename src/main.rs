@@ -17,7 +17,7 @@ fn process_command(arg_str: &str, dictionary: &mut Dictionary) -> Result<(), Com
     let cmd = args.next().unwrap_or("/");
     let arg = args.collect::<Vec<&str>>().join(" ");
     match cmd {
-        "/help" => {
+        "?" | "/help" => {
             println!("Enter a word and all anagrams will be printed.");
             println!("Commands:");
             println!("  WORD        Print anagrams for WORD.");
@@ -28,8 +28,8 @@ fn process_command(arg_str: &str, dictionary: &mut Dictionary) -> Result<(), Com
             println!("  /help       Print this help text.");
             println!("  /quit       Exit the program.");
         }
-        "/dump" => println!("Full dictionary:\n{:?}", dictionary),
         "/countsigs" => println!("Count: {}", dictionary.keys().len()),
+        "/dump" => println!("Full dictionary:\n{:?}", dictionary),
         "/load" => dictionary.update(&arg)?,
         "/reset" => dictionary.clear(),
         "/exit" | "/quit" | "/bye" => return Err(CommandError::ExitCommand),
@@ -80,11 +80,13 @@ fn main() {
     loop {
         match rl.readline("Word: ") {
             Ok(word) if word.trim().is_empty() => continue,
-            Ok(cmd) if cmd.starts_with('/') => match process_command(cmd.trim(), &mut dict) {
-                Err(CommandError::IoError(_)) => eprintln!("Unable to load word list"),
-                Err(CommandError::ExitCommand) => break,
-                Ok(_) => continue,
-            },
+            Ok(cmd) if cmd.starts_with('/') || cmd == "?" => {
+                match process_command(cmd.trim(), &mut dict) {
+                    Err(CommandError::IoError(_)) => eprintln!("Unable to load word list"),
+                    Err(CommandError::ExitCommand) => break,
+                    Ok(_) => continue,
+                }
+            }
             Ok(word) => {
                 find_matches(word.trim(), &dict);
                 rl.add_history_entry(word);
