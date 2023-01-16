@@ -55,6 +55,9 @@ fn find_matches(word: &str, dict: &Dictionary) {
     if let Some(matches) = dict.lookup(word) {
         let mut match_list = matches.iter().map(|s| &**s).collect::<Vec<&str>>();
         match_list.sort_unstable();
+        if !match_list.contains(&word) {
+            println!("'{}' not in dictionary", word);
+        }
         println!("Anagrams: {}", match_list.join(", "));
     } else {
         eprintln!("No angrams found for '{}'.", word);
