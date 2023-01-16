@@ -74,7 +74,7 @@ fn main() {
     let history_path = determine_history_path();
     let history_path = history_path.as_path();
 
-    let mut rl = Editor::<()>::new();
+    let mut rl = Editor::<()>::new().expect("Unable to initialize reader");
     let _ = rl.load_history(history_path);
 
     loop {
