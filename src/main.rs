@@ -58,6 +58,7 @@ fn find_matches(word: &str, dict: &Dictionary) {
         if !match_list.contains(&word) {
             println!("'{}' not in dictionary", word);
         }
+        match_list.retain(|anagram| !anagram.eq_ignore_ascii_case(word));
         println!("Anagrams: {}", match_list.join(", "));
     } else {
         eprintln!("No angrams found for '{}'.", word);
