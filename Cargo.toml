@@ -1,9 +1,9 @@
 [package]
 name = "anagrams"
 version = "0.3.0"
-authors = ["Kyle Laker <kyle@laker.email>"]
+authors = ["Laurel May <laurel@laurelmay.me>"]
 edition = "2021"
 
 [dependencies]
-rustyline = "10.1"
-dirs = "4.0"
+rustyline = "14"
+dirs = "5"

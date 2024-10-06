@@ -7,7 +7,7 @@ extern crate rustyline;
 use std::env;
 use std::path::PathBuf;
 
-use rustyline::Editor;
+use rustyline::DefaultEditor;
 
 use dictionary::{Dictionary, DictionaryMethods};
 use errors::CommandError;
@@ -77,7 +77,7 @@ fn main() {
     let history_path = determine_history_path();
     let history_path = history_path.as_path();
 
-    let mut rl = Editor::<()>::new().expect("Unable to initialize reader");
+    let mut rl = DefaultEditor::new().expect("Unable to initialize reader");
     let _ = rl.load_history(history_path);
 
     loop {
@@ -92,7 +92,7 @@ fn main() {
             }
             Ok(word) => {
                 find_matches(word.trim(), &dict);
-                rl.add_history_entry(word);
+                let _ = rl.add_history_entry(word);
             }
             Err(_) => {
                 break;

@@ -1,6 +1,7 @@
 use std::io;
 
 pub enum CommandError {
+    #[allow(dead_code)]
     IoError(io::Error),
     ExitCommand,
 }

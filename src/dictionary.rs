@@ -38,7 +38,7 @@ impl DictionaryMethods for Dictionary {
 fn process_dictionary(dict: &mut Dictionary, words: &[&str]) {
     for word in words {
         dict.entry(word_signature(word))
-            .or_insert_with(HashSet::new)
+            .or_default()
             .insert(word.to_string());
     }
     dict.retain(|_, words| words.len() != 1);
