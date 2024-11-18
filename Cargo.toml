@@ -5,5 +5,5 @@ authors = ["Laurel May <laurel@laurelmay.me>"]
 edition = "2021"
 
 [dependencies]
-rustyline = "14"
+rustyline = "15"
 dirs = "5"
